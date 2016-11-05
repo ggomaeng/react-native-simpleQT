@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "306448333155",
+    "firebase_url": "https://simpleqt-5c6e9.firebaseio.com",
+    "project_id": "simpleqt-5c6e9",
+    "storage_bucket": "simpleqt-5c6e9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306448333155:android:ce9200259f5b12f7",
+        "android_client_info": {
+          "package_name": "com.simpleqt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306448333155-9im5idkdkt6u8c6h5gktmj992cgr2794.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCWPwa7Cmcv4CLO8RjUZtM9ioE7z0fcmE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
