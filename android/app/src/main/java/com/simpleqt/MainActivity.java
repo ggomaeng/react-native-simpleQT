@@ -1,6 +1,8 @@
 package com.simpleqt;
 
 import com.facebook.react.ReactActivity;
+import com.oblador.vectoricons.VectorIconsPackage;
+import cl.json.RNSharePackage;
 import com.react.rnspinkit.RNSpinkitPackage;
 import com.evollu.react.fcm.FIRMessagingPackage;
 

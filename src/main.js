@@ -5,9 +5,15 @@ import React, {Component} from 'react';
 import {
     View,
     Text,
+    Dimensions,
     ScrollView,
+    TouchableOpacity,
     StyleSheet
 } from 'react-native';
+
+var {height, width} = Dimensions.get('window');
+
+import NavigationBar from 'react-native-navbar';
 
 import moment from 'moment';
 var Spinner = require('react-native-spinkit');
@@ -23,6 +29,9 @@ var greeting = [
     '겸손한 마음가짐'
 ];
 import FCM from 'react-native-fcm';
+var Carousel = require('react-native-carousel');
+import Share, {ShareSheet, Button} from 'react-native-share';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Main extends Component {
 
@@ -32,22 +41,29 @@ export default class Main extends Component {
         this.state = {
             loading: true,
             verses: [],
+            renderOption: false
         }
     }
 
     componentDidMount() {
 
-        fetch("https://simpleqt-ggoma.c9users.io/api", {method: "GET"})
+        url2 = 'https://58urrdnao7.execute-api.us-west-2.amazonaws.com/api/scrape_everyday';
+
+        fetch(url2, {method: "GET"})
             .then((response) => response.json())
             .then((responseData) => {
                 console.log(responseData);
-                this.setState({loading: false, title: responseData.title, subtitle: responseData.subtitle, content: responseData.content}
-                    ,() => {
-                        this.createVerses();
-                    });
+                this.setState({ loading: false, e_title: responseData.e_title,
+                    e_subtitle: responseData.e_subtitle,
+                    e_content: responseData.e_content,
+                    e_sharing: responseData.e_sharing});
 
             })
             .done();
+
+
+
+
 
         FCM.requestPermissions();
 
@@ -74,10 +90,58 @@ export default class Main extends Component {
         });
 
 
-
-
-
     }
+
+    switchScene() {
+
+        if(!this.state.title) {
+            this.setState({loading: true});
+            var url = 'https://58urrdnao7.execute-api.us-west-2.amazonaws.com/api/scrape';
+            fetch(url, {method: "GET"})
+                .then((response) => response.json())
+                .then((responseData) => {
+                    console.log(responseData);
+                    this.setState({
+                            loading: false,
+                            renderOption: !this.state.renderOption,
+                            title: responseData.title,
+                            subtitle: responseData.subtitle,
+                            content: responseData.content,
+                            sharing1: responseData.sharing,
+                            sharing2: responseData.sharing2,
+                            sharing3: responseData.sharing3}
+                        ,() => {
+                            this.createVerses();
+                        });
+
+                })
+                .done();
+
+            return
+        }
+
+        if(!this.state.e_title) {
+            this.setState({loading: true});
+            url2 = 'https://58urrdnao7.execute-api.us-west-2.amazonaws.com/api/scrape_everyday';
+            fetch(url2, {method: "GET"})
+                .then((response) => response.json())
+                .then((responseData) => {
+                    console.log(responseData);
+                    this.setState({ loading: false, e_title: responseData.e_title,
+                        e_subtitle: responseData.e_subtitle,
+                        e_content: responseData.e_content,
+                        e_sharing: responseData.e_sharing});
+
+                })
+                .done();
+
+            return
+        }
+
+        this.setState({renderOption: !this.state.renderOption})
+    }
+
+
 
     createVerses() {
         var temp = [];
@@ -94,11 +158,19 @@ export default class Main extends Component {
     }
 
     renderTitle() {
+
         return (
-            <View style={{paddingTop: 40, alignItems: 'center'}}>
-                <Text>{moment().format('dddd, MMMM Do')}</Text>
-                <Text style={{fontWeight: '700', fontSize: 24}}>{this.state.title}</Text>
-                <Text style={{fontWeight: '100'}}>{this.state.subtitle}</Text>
+            <View style={{alignItems: 'center'}}>
+                <Text style={{color: 'black', fontWeight: '700', fontSize: 20}}>{this.state.title}</Text>
+            </View>
+        )
+    }
+
+    renderETitle() {
+
+        return (
+            <View style={{alignItems: 'center'}}>
+                <Text style={{color: 'black', fontWeight: '700', fontSize: 20}}>{this.state.e_title}</Text>
             </View>
         )
     }
@@ -108,7 +180,7 @@ export default class Main extends Component {
             if(verse.key) {
                 return (
                     <View key={i} style={{paddingTop: i==0 ? 0 : 24, paddingBottom: 24}}>
-                        <Text style={{fontWeight: '500', fontSize: 18}}>{verse.content}</Text>
+                        <Text style={{color: 'black', fontWeight: '500', fontSize: 18}}>{verse.content}</Text>
                     </View>
                 )
             }
@@ -121,7 +193,54 @@ export default class Main extends Component {
         })
     }
 
+
+    view1() {
+        return (
+            <ScrollView style={{flex: 1, padding: 16}}>
+                {this.renderContent()}
+            </ScrollView>
+        )
+    }
+
+    view2() {
+        return (
+            <ScrollView style={{flex: 1, padding: 16}}>
+                <View>
+                    <Text style={{color: 'black', fontWeight: '500', fontSize: 18}}>{this.state.sharing1.title}</Text>
+                    <Text/>
+                    <Text>{this.state.sharing1.content}</Text>
+                </View>
+            </ScrollView>
+        )
+    }
+
+    view3() {
+        return (
+            <ScrollView style={{flex: 1, padding: 16}}>
+                <View>
+                    <Text style={{color: 'black', fontWeight: '500', fontSize: 18}}>{this.state.sharing2.title}</Text>
+                    <Text/>
+                    <Text>{this.state.sharing2.content}</Text>
+                </View>
+            </ScrollView>
+        )
+    }
+
+    view4() {
+        return (
+            <ScrollView style={{flex: 1, padding: 16}}>
+                <View>
+                    <Text style={{color: 'black', fontWeight: '500', fontSize: 18}}>{this.state.sharing3.title}</Text>
+                    <Text/>
+                    <Text>{this.state.sharing3.content}</Text>
+                </View>
+            </ScrollView>
+        )
+    }
+
     render() {
+
+
         if(this.state.loading) {
             return (
                 <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -131,19 +250,141 @@ export default class Main extends Component {
             )
         }
 
-        return (
-            <View style={styles.container}>
-                {this.renderTitle()}
-                <ScrollView style={{flex: 1, padding: 16}}>
-                    {this.renderContent()}
-                </ScrollView>
-            </View>
-        )
+
+
+        if(this.state.renderOption) {
+            let shareOptions = {
+                title: "simpleQT",
+                message: "오늘의 큐티말씀",
+                url: "http://www.365qt.com/TodaysQT.asp",
+                social: 'facebook'//  for email
+            };
+
+            var rightButtonConfig = <TouchableOpacity
+                style={{width: 24, height:24, borderRadius: 12, margin: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#3b5998'}}
+                onPress={() => Share.shareSingle(shareOptions).
+                then(success => console.log(success),
+                    error => console.log(error))}
+
+            >
+                <Icon name="facebook" color='white' />
+            </TouchableOpacity>;
+
+            var leftButtonConfig = <TouchableOpacity
+                style={{width: 24, height:24, borderRadius: 12, margin: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#3b5998'}}
+                onPress={() => this.switchScene()}
+            >
+                <Icon name="repeat" color='white' />
+            </TouchableOpacity>;
+
+
+            var titleConfig = {
+                title: this.state.subtitle,
+            };
+            return (
+                <View style={styles.container}>
+                    <NavigationBar
+                        title={titleConfig}
+                        rightButton={rightButtonConfig}
+                        leftButton={leftButtonConfig}
+                    />
+                    {this.renderTitle()}
+
+                    <Carousel
+                        indicatorSize={40}
+                        indicatorAtBottom={true} width={width} indicatorOffset={0} animate={false} >
+                        <View style={styles.screen}>
+                            {this.view1()}
+                        </View>
+                        <View style={styles.screen}>
+                            {this.view2()}
+                        </View>
+                        <View style={styles.screen}>
+                            {this.view3()}
+                        </View>
+                        <View style={styles.screen}>
+                            {this.view4()}
+                        </View>
+
+
+                    </Carousel>
+                </View>
+            )
+        } else {
+            let shareOptions = {
+                title: "simpleQT",
+                message: "오늘의 큐티말씀",
+                url: "http://www.su.or.kr/03bible/daily/qtView.do?qtType=QT2",
+                social: 'facebook'//  for email
+            };
+
+
+            var rightButtonConfig = <TouchableOpacity
+                    style={{width: 24, height:24, borderRadius: 12, margin: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#3b5998'}}
+                    onPress={() => Share.shareSingle(shareOptions).
+                    then(success => console.log(success),
+                        error => console.log(error))}
+
+                >
+                    <Icon name="facebook" color='white' />
+                </TouchableOpacity>;
+
+            var leftButtonConfig = <TouchableOpacity
+                    style={{width: 24, height:24, borderRadius: 12, margin: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: '#3b5998'}}
+                    onPress={() => this.switchScene()}
+                >
+                    <Icon name="repeat" color='white' />
+                </TouchableOpacity>;
+
+            var titleConfig = {
+                title: this.state.e_subtitle,
+            };
+
+            return (
+                <View style={styles.container}>
+                    <NavigationBar
+                        title={titleConfig}
+                        rightButton={rightButtonConfig}
+                        leftButton={leftButtonConfig}
+                    />
+                    {this.renderETitle()}
+
+                    <Carousel
+                        indicatorSize={40}
+                        indicatorAtBottom={true} width={width} indicatorOffset={0} animate={false} >
+                        <View style={styles.screen}>
+                            <ScrollView style={{flex: 1, padding: 16}}>
+                                <Text>{this.state.e_content}</Text>
+                            </ScrollView>
+
+                        </View>
+                        <View style={styles.screen}>
+                            <ScrollView style={{flex: 1, padding: 16}}>
+                                <Text>{this.state.e_sharing}</Text>
+                            </ScrollView>
+                        </View>
+
+
+                    </Carousel>
+                </View>
+            )
+        }
+
+
     }
+
+
 }
 
 var styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        width: width,
+        backgroundColor: 'white'
+    },
+    screen: {
+        flex: 1,
+        width: width,
+        paddingBottom: 50
     }
 });
